@@ -1,0 +1,65 @@
+# define openshift components
+[OSEv3:children]
+masters
+nodes
+nfs
+etcd
+lb
+
+# define openshift variables
+[OSEv3:vars]
+containerized=true
+openshift_deployment_type=openshift-enterprise
+openshift_docker_insecure_registries="registry.mycluster.com:5000"
+# osm_cluster_network_cidr=172.16.0.0/16
+
+openshift_disable_check=docker_image_availability
+openshift_node_groups=[ {"name": "all-in-one", "labels": ["node-role.kubernetes.io/master=true", "node-role.kubernetes.io/infra=true", "node-role.kubernetes.io/compute=true" ]}, {"name": "node-config-master", "labels": ["node-role.kubernetes.io/master=true"]}, {"name": "node-config-infra", "labels": ["node-role.kubernetes.io/infra=true"]}, {"name": "node-config-compute", "labels": ["node-role.kubernetes.io/compute=true"]}]
+oreg_url=registry.ibmcloudpack.com:5000/openshift3/ose-${component}:${version}
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+openshift_master_htpasswd_users={'ocadmin': '$apr1$CdyzN7vS$wM6gchgqURLe1A7gQRbIi0'}
+ansible_ssh_user=root
+os_firewall_use_firewalld=True
+openshift_master_cluster_method=native
+openshift_master_cluster_hostname=<cluster>-lb.mycluster.com
+openshift_master_cluster_public_hostname=<cluster>-lb.mycluster.com
+openshift_master_default_subdomain=apps.<cluster>-lb.mycluster.com
+openshift_disable_check=memory_availability
+
+# It is needed where no LB and master node is running the infra router too.
+openshift_master_api_port=8443
+openshift_master_console_port=8443
+# CRI-O
+openshift_use_crio=False
+openshift_use_crio_only=False
+
+# NFS Host Group
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_host=<cluster>-master1.mycluster.com
+openshift_hosted_registry_storage_nfs_directory=/data
+openshift_hosted_registry_storage_nfs_options='*(rw,root_squash,anonuid=1000,anongid=2000)'
+openshift_hosted_registry_storage_volume_name=registry
+openshift_hosted_registry_storage_volume_size=200Gi
+
+# host group for masters
+[masters]
+<cluster>-master[1:3].mycluster.com
+
+# host group for etcd
+[etcd]
+<cluster>-master[1:3].mycluster.com
+
+# load balancer
+[lb]
+<cluster>-lb.mycluster.com
+
+# nfs server
+[nfs]
+<cluster>-master1.mycluster.com
+
+# host group for nodes
+[nodes]
+<cluster>-master[1:3].mycluster.com openshift_node_group_name="all-in-one"
+<cluster>-worker[1:3].mycluster.com openshift_node_group_name="node-config-compute"
+<cluster>-lb.mycluster.com openshift_node_group_name="node-config-infra"
