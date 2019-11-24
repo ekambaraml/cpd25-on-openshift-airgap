@@ -1,0 +1,15 @@
+---
+- hosts: all
+
+  sudo: yes
+
+  vars_files:
+   - ../vars/globals.yml
+
+  tasks:
+
+  - name: chekc-images
+    shell: docker images
+    register: output
+
+  - debug: var=output.stdout_lines

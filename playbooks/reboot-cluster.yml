@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+   - name: preuptime
+     shell: uptime
+     register: UPTIME_PRE_REBOOT
+
+   - debug: msg={{UPTIME_PRE_REBOOT.stdout}}
+
+   - name: reboot node
+     shell: reboot
+     async: 10
+     poll: 0
+
+   - name: post_uptime
+     shell: uptime
+     register: UPTIME_POST_REBOOT
+
+   - debug: msg={{UPTIME_POST_REBOOT.stdout}}

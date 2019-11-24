@@ -1,0 +1,34 @@
+---
+- hosts: all
+  become: yes
+ 
+  vars_files:
+   - ../vars/globals.yml
+
+  tasks:
+  - name: Enable Network Manager
+    shell: systemctl enable NetworkManager
+
+  - name: NM-CONTROLLED0
+    shell: echo "NM_CONTROLLED=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+
+  - name: NM-CONTROLLED1
+    shell: echo "NM_CONTROLLED=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+
+  - name: PEERDNS0
+    shell: echo "PEERDNS=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+
+  - name: PEERDNS1
+    shell: echo "PEERDNS=no" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+
+  - name: Start Network Manager
+    shell: systemctl stop NetworkManager
+
+  - name: Start Network Manager
+    shell: systemctl start NetworkManager
+
+  - name: status
+    shell: nmcli device
+    register: output
+
+  - debug: var=output.stdout_lines

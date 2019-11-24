@@ -1,0 +1,18 @@
+---
+
+sudo: yes
+docker_disk: /dev/xvdc
+docker_storage: /var/lib/docker
+gluster_disk: /dev/xvde
+time_server: servertime.service.<yourdomain>.com
+yum_repository_server: registry.<reposerver>.com
+
+#OSE YUM Repository
+yum_ose_dest: /etc/yum.repos.d/ose.repo
+yum_ose_src: ../utils/ose.repo"
+
+
+##RedHat Subscription
+redhat_username: <username>
+redhat_password: <password>
+redhat_pool_ids: <pool-id>

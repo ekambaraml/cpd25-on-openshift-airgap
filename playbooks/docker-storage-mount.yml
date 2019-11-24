@@ -1,0 +1,47 @@
+---
+- name: Mount ibm disks for master and ibm/data disks for worker
+  hosts: all 
+  
+  vars_files:
+   - ../vars/globals.yml
+
+  vars:
+    dest_utils: /root/playbook
+  
+
+  
+  become: yes
+
+  tasks:
+
+#  - name: stop docker
+#    shell: systemctl stop docker
+
+  - name: docker_mount
+    file:
+      path: "{{ dest_utils }}"
+      state: directory
+    tags: mkdir
+
+  - name: copy scripts
+    copy:  
+       src: "{{ item }}"
+       dest: "{{ dest_utils }}"
+       mode: "a+x"
+    with_items:
+       - "../utils/partition_disk.sh"
+    tags: copy-scripts
+
+  - name: mount /var/lib/docker
+    command: "{{dest_utils}}/partition_disk.sh  {{ docker_disk }}  {{ docker_storage  }}"
+    tags: dockerdisk
+
+#  - name: start docker
+#    shell: systemctl start docker
+
+  - name: status
+    shell: df "{{ docker_disk }}"
+    shell: lsblk
+    register: output
+
+  - debug: var=output.stdout_lines

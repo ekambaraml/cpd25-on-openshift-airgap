@@ -1,0 +1,12 @@
+---
+- hosts: all
+
+  sudo: yes
+
+  tasks:
+
+  - name: uname
+    shell: sysctl -w net.ipv4.ip_forward=1
+    register: output
+
+  - debug: var=output.stdout_lines

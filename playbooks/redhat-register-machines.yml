@@ -1,0 +1,13 @@
+---
+- hosts: all
+  vars_files:
+   - ../vars/globals.yml
+  become: yes
+ 
+  tasks:
+  - name: Register the machines
+    redhat_subscription:
+          state: present
+          username: "{{ redhat_username }}"
+          password: "{{ redhat_password }}"
+          pool_ids: "{{ redhat_pool_ids }}"

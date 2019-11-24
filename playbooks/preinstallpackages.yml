@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: yes
+ 
+  tasks:
+  - name: Install openshit packages
+    yum:
+      name: "{{ packages }}"
+    vars:
+      packages:
+      - wget
+      - git
+      - net-tools
+      - bind-utils
+      - iptables-services
+      - bridge-utils
+      - bash-completion
+      - kexec-tools
+      - sos
+      - psacct
+      - nfs-utils
+
+  - name: upgrade all packages
+    yum:
+     name: '*'
+     state: latest

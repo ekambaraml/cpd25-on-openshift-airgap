@@ -1,0 +1,28 @@
+---
+- name: copy yum repo config to all nodes and validate
+  hosts: all 
+  
+  vars_files:
+   - ../vars/globals.yml
+
+  become: yes
+
+  tasks:
+
+  - name: copy yum-repo to nodes
+    copy:  
+       src: "{{ item }}"
+       dest: "{{ item }}"
+       mode: "a+x"
+    with_items:
+       - "/etc/yum.repos.d/ose.repo"
+    tags: copy-yumrepo-client
+
+  - name: clean-repo-cache
+    shell: rm -rf /var/cache/yum
+
+  - name: status
+    shell: yum repolist
+    register: output
+
+  - debug: var=output.stdout_lines

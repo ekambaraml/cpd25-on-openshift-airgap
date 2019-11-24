@@ -1,0 +1,10 @@
+---
+- hosts: all
+
+  sudo: yes
+
+  tasks:
+
+  - name: root-change-password
+    user: name=root update_password=always password=$6$rounds=656000$m5dZaBmPOgFiQ3Bj$6toj2ZLF7aPepY455Rmx/fLYHE4lLCRr4HddCZ5hTGnQ63yriW2YHKFe27kIA1JWk8XJMIAWlT8YfaewImaO21
+    tags: root-password-change

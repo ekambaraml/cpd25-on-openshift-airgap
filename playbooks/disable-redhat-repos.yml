@@ -1,0 +1,8 @@
+---
+- hosts: all
+  become: yes
+ 
+  tasks:
+
+  - name: disable
+    shell: subscription-manager repos --disable="*"

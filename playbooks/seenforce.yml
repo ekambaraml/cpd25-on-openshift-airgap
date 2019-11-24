@@ -1,0 +1,32 @@
+---
+- hosts: all
+
+  sudo: yes
+
+  tasks:
+
+  
+  - name: Create autorelable file
+    shell: touch /.autorelabel
+
+  - name: Check selinux mode
+    command: getenforce
+    register: sestatus
+    changed_when: false
+  - debug: 
+       msg: "Selinux mode is {{ sestatus.stdout}}"
+  
+  - name: Change Selinux state to enforcing mode
+    selinux:
+       policy: targeted
+       state: enforcing
+    when: '"Enforcing" not in sestatus.stdout'
+
+  - debug:
+      msg: "Please reboot the machine for selinux mode change to be effective"
+    when: '"Enforcing" not in sestatus.stdout'
+
+  - name: status
+    command: getenforce
+    register: sestatus
+    changed_when: false

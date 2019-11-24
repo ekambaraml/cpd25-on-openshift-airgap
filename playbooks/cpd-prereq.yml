@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: yes
+ 
+  vars_files:
+   - ../vars/globals.yml
+
+  tasks:
+  - name: kernel-semaphore
+    shell: echo "kernel.sem = 250 1024000 32 4096" >> /etc/sysctl.conf
+
+  - name: vm.max 
+    shell: echo "vm.max_map_count=262144" >> /etc/sysctl.conf
+
+  - name: sysctl
+    shell: sysctl -p
+
+  - name: status
+    shell: cat /etc/sysctl.conf
+    register: output
+
+  - name: kernel
+    sysctl: name=kernel.sem value="250 32000 32 4096" state=present sysctl_set: no
+    register: output
+
+  - debug: var=output.stdout_lines

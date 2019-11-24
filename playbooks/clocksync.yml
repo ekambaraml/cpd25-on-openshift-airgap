@@ -1,0 +1,23 @@
+---
+- hosts: all
+
+  sudo: yes
+
+  vars_files:
+   - ../vars/globals.yml
+
+  tasks:
+
+  - name: install ntp
+    yum: name=ntp state=present
+    tags: ntp
+  - name: start service
+    service: name=ntpd state=started enabled=yes
+    tags: ntp
+  - name: ntpdate time
+    shell: ntpdate -u "{{ time_server }}"
+  - name: start ntp
+    shell: service ntpd start
+  - name: status
+    shell: ntpstat
+
