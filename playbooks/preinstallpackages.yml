@@ -3,7 +3,7 @@
   become: yes
  
   tasks:
-  - name: Install openshit packages
+  - name: Install openshift packages
     yum:
       name: "{{ packages }}"
     vars:
