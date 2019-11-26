@@ -66,7 +66,7 @@
   - $ ansible-playbook -i ansible.os25 playbooks/reboot-cluster.yml   
 
 * [ ] Only on Bastion Host: Install ansible-Openshift
-  - $ yum install –y ansible-openshift
+  - $ yum -y install openshift-ansible-3.11.141-1.git.0.a7e91cd.el7
   
 # Setup NFS Server (persistent storage)
 On a node with NFS disk
