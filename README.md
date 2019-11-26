@@ -46,11 +46,17 @@
 
 * [ ] Mount docker disk on /var/lib/docker
   - $ ansible-playbook -i ansible.os25 playbooks/docker-storage-mount.yml
+  
+* [ ] Subscribe to RedHat license (non-airgap only )
+  - $ ansible-playbook -i ansible.os25 playbooks/redhat-register-machines.yml 
 
 * [ ] Disable all RPM repos
   - $ ansible-playbook -i ansible.os25 playbooks/disable-redhat-repos.yml 
+  
+* [ ] enable OpenShift RPM repos (non-airgap only)
+  - $ ansible-playbook -i ansible.os25 playbooks/enable-ocp-repos.yml
 
-* [ ] Copy ose.repo to all nodes
+* [ ] Copy ose.repo to all nodes (airgap only)
   - $ ansible-playbook -i ansible.os25 playbooks/yum-ose-repo.yml 
 
 * [ ] Install preinstall packages
