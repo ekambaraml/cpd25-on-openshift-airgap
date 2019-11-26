@@ -87,6 +87,9 @@ Testing NFS disk mount on client machine (worker 1)
 $ showmount -e <nfs-server-machine>
 $ mkdir /tmp/x
 $ mount <nfs-server-machine>:/data /tmp/x
+
+unmount the test directory
+$ umount /root/x
 ```
 
 # Create Inventory file
