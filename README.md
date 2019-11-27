@@ -3,6 +3,7 @@
 
 # Steps Required to deploy
 * [ ] Provision Infrastructure
+* [ ] Download the OpenShift RPMs and Docker images
 * [ ] Setup External DNS and include all nodes
 * [ ] Setup DNS wild card entry
 * [ ] Setup YUM RPM Repository for OpenShift 3.11
