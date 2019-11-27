@@ -2,21 +2,21 @@
 
 
 # Steps Required to deploy
-* [ ] Provision Infrastructure
-* [ ] Download the OpenShift RPMs and Docker images
-* [ ] Setup External DNS and include all nodes
-* [ ] Setup DNS wild card entry
-* [ ] Setup YUM RPM Repository for OpenShift 3.11
-* [ ] Setup Docker Registry with OpenShift 3.11
-* [ ] Update ansible playbook vars/global.yml
-* [ ] Update ansible.os25
-* [ ] Prepare cluster nodes
-* [ ] NFS Server setup
-* [ ] Deploy OpenShift
+* [ ] 1. Provision Infrastructure
+* [ ] 2. Download the OpenShift RPMs and Docker images
+* [ ] 3. Setup External DNS and include all nodes
+* [ ] 4. Setup DNS wild card entry
+* [ ] 5. Setup YUM RPM Repository for OpenShift 3.11
+* [ ] 6. Setup Docker Registry with OpenShift 3.11
+* [ ] 7. Update ansible playbook vars/global.yml
+* [ ] 8. Update ansible.os25
+* [ ] 9. Prepare cluster nodes
+* [ ] 10. NFS Server setup
+* [ ] 11. Deploy OpenShift
       Create inventory file
       Run prerequisites
       Run deploy_cluster
-* [ ] Access the Cluster URL
+* [ ] 12. Access the Cluster URL
 
 
 # Provision Infrastructure
@@ -31,42 +31,42 @@
 
 
 # Prepare Cluster nodes
-* [ ] Password less ssh between Bastion and all nodes
+* [ ] 1. Password less ssh between Bastion and all nodes
 
-* [ ] Clocksync on all nodes
+* [ ] 2. Clocksync on all nodes
   - $ ansible-playbook -i ansible.os25 playbooks/clocksync.yml
 
-* [ ] Ipv4 forward
+* [ ] 3. Ipv4 forward
   - $ ansible-playbook -i ansible.os25 playbooks/ipforward.yml 
 
-* [ ] SELINUX enforced
+* [ ] 4. SELINUX enforced
   - $ ansible-playbook -i ansible.os25 playbooks/seenforce.yml 
 
-* [ ] Enable NetworkManager
+* [ ] 5. Enable NetworkManager
   - $ ansible-playbook -i ansible.os25 playbooks/network-manager.yml 
 
-* [ ] Mount docker disk on /var/lib/docker
+* [ ] 6. Mount docker disk on /var/lib/docker
   - $ ansible-playbook -i ansible.os25 playbooks/docker-storage-mount.yml
   
-* [ ] Subscribe to RedHat license (non-airgap only )
+* [ ] 7. Subscribe to RedHat license (non-airgap only )
   - $ ansible-playbook -i ansible.os25 playbooks/redhat-register-machines.yml 
 
-* [ ] Disable all RPM repos
+* [ ] 8. Disable all RPM repos
   - $ ansible-playbook -i ansible.os25 playbooks/disable-redhat-repos.yml 
   
-* [ ] enable OpenShift RPM repos (non-airgap only)
+* [ ] 9. enable OpenShift RPM repos (non-airgap only)
   - $ ansible-playbook -i ansible.os25 playbooks/enable-ocp-repos.yml
 
-* [ ] Copy ose.repo to all nodes (airgap only)
+* [ ] 10. Copy ose.repo to all nodes (airgap only)
   - $ ansible-playbook -i ansible.os25 playbooks/yum-ose-repo.yml 
 
-* [ ] Install preinstall packages
+* [ ] 11. Install preinstall packages
   - $ ansible-playbook -i ansible.os25 playbooks/preinstallpackages.yml
 
-* [ ] Reboot all cluster nodes
+* [ ] 12. Reboot all cluster nodes
   - $ ansible-playbook -i ansible.os25 playbooks/reboot-cluster.yml   
 
-* [ ] Only on Bastion Host: Install ansible-Openshift
+* [ ] 13. Only on Bastion Host: Install ansible-Openshift
   - $ yum -y install openshift-ansible-3.11.141-1.git.0.a7e91cd.el7
   
 # Setup NFS Server (persistent storage)
