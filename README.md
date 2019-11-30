@@ -1,5 +1,8 @@
 # Deploying OpenShift 3.11 on AirGap environment
 
+![alt text][logo]
+
+[logo]: https://github.com/ekambaraml/openshift311-airgap/blob/master/VPN-Bastion.png "Deployment Architecture"
 
 # Steps Required to deploy
 * [ ] 1. Provision Infrastructure
