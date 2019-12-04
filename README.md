@@ -44,9 +44,9 @@ Bastion node is a host in the same network as cluster nodes and have access to c
 
 ### 1. Clone the git repository
 ```
-	$ cd /ibm
-	$ git clone https://github.com/ekambaraml/openshift311-airgap.git
-	$ cd openshift311-airgap
+	cd /ibm
+	git clone https://github.com/ekambaraml/openshift311-airgap.git
+	cd openshift311-airgap
 ```
 	
 
@@ -194,6 +194,109 @@ This step need to be done on a internet facing system.
     docker tag docker.io/busybox  <<registry.ibmcloudpack.com>>:5000/busybox
     docker push <<registry.ibmcloudpack.com>>:5000/busybox
 ```
+
+### 5. Load OpenShift 3.11 images into local docker registry
+* [ ] Load openshift 3.11 images
+```
+    cd /ibm
+    docker load -i ose3-images.tar
+```
+
+* [ ] Retag the images with your registry server
+OpenShift images are by default prefixed with "registry.redhat.io". This need to be retaged with local docker registry server then pushed into local registry. Here is a simple script to automate the steps.
+Create retag.sh. <b>Make sure, you update the script with your bastion host name</b>
+
+```
+    #!/bin/bash
+    for i in `docker images | grep '^registry.redhat.io' | awk '{print $1":"$2}'`
+    do
+        b=`echo $i | sed 's/registry.redhat.io/<<bastion hostname>>:5000/g'`
+        docker tag $i $b
+        docker push $b
+    done
+```
+Then Run the command:
+```
+	./ocp-docker-retag.sh	
+```
+
+* [ ] Updating the images with new tags, if needed example version v3.11.154
+Create retag-v154.sh
+``` 	 
+     #!/bin/bash
+	for i in `docker images | grep '^registry.redhat.io' | grep -i v3.11 | grep -v v3.11.146 | grep -v v3.11.135 | awk '{print $1":"$2}'`
+	do
+	    b=`echo $i | sed 's/registry.redhat.io/<bastion hostname>:5000/g'`.135
+	    echo $b
+	    docker tag $i $b
+	    docker push $b
+	done
+```
+and Run the retag-v154.sh
+
+### 6. Setup NFS server for persistent storage for Cloud Pak for Data.
+NFS server need to be setup in a machine with 1TB storage disk. In this example the work1 - Worker 3 are provisioned with additional 1TB disks. We are going to use <b>Work1</b> for running the local NFS server.
+
+* [ ] Install nfs server
+Log into worker1 and run the following command
+```
+    yum install -y nfs-utils
+    systemctl enable rpcbind
+    systemctl enable nfs-server
+    systemctl start rpcbind
+    systemctl start nfs-server
+```
+
+* [ ] Configure firewall ports
+
+```
+    firewall-cmd --zone=public --add-port=111/tcp --permanent
+    firewall-cmd --reload
+    firewall-cmd --zone=public --add-port=111/udp --permanent
+    firewall-cmd --reload
+    firewall-cmd --zone=public --add-port=2049/tcp --permanent
+    firewall-cmd --reload
+    firewall-cmd --zone=public --add-port=2049/udp --permanent
+    firewall-cmd --reload
+    firewall-cmd --zone=public --add-port=892/tcp --permanent
+    firewall-cmd --reload
+    firewall-cmd --zone=public --add-port=662/udp --permanent
+    firewall-cmd --reload
+```
+
+        
+* [ ] Allow all nodes in the subnet to access it
+
+```
+    vi /etc/exports
+```
+
+Add the following line to allow all nodes in the cluster to access the NFS server for file sharing.
+
+```    
+    /data *(rw,sync,no_root_squash)
+```
+
+* [ ] Restart the nfs server
+
+```    
+    systemctl restart nfs-server
+```
+
+* [ ] Test the NFS mount on worker2
+  Go to any of the worker nodes, example worker2
+
+```
+    mkdir /data
+    mount -t nfs <worker1>:/data /data
+    cd /data
+```
+
+Make sure this mount work correctly. After the test, umount the share
+```
+    umount /data
+```
+
 
 Below are the sequences of steps needed to prepare the nodes before starting the openshift install. All these commands will be run from bastion Host.
 
