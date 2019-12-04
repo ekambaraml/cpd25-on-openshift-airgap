@@ -28,8 +28,8 @@
 | Host |Count |Configuration | Storage | Purpose |
 |:------|------|:-------------|:------------|:----------|
 | Bastion| 1 | <ul><li>8 Core</li><li>16 GB Ram</li></ul>|<ul><li> 100 GB Root</li><li>/var/lib/docker 200+ GB to storge docker images </li><li>/repository 500+ GB for local repo/registry</li></ul>|Virtual Machine for installation; This machine will also act as a local RPM Yum repository and Docker registry for airgap environment|
-| Master nodes|1 or 3 |<ul><li>8 Core</li><li>32 GB Ram</li></u>|<ul><li> 100 GB Roo</li><li>/var/lib/docker 200+ GB for Docker storage </li></ul>|Virtual Machine running OpenShift Control plane|
-| Worker nodes|3 or more| <ul><li>16 Core</li><li>64GB Ram</li></u>|<ul><li> 100 GB Roo</li><li>/var/lib/docker 200+ GB for Docker storage</li><li>1 TB GB for persistance storage</li></ul>|Virtual Machine running Workload|
+| Master nodes|1 or 3 |<ul><li>8 Core</li><li>32 GB Ram</li></u>|<ul><li> 100 GB Root</li><li>/var/lib/docker 200+ GB for Docker storage </li></ul>|Virtual Machine running OpenShift Control plane|
+| Worker nodes|3 or more| <ul><li>16 Core</li><li>64GB Ram</li></u>|<ul><li> 100 GB Root</li><li>/var/lib/docker 200+ GB for Docker storage</li><li>1 TB GB for persistance storage</li></ul>|Virtual Machine running Workload|
 | Load Balancer|1 option| <ul><li>4 Core</li><li>8GB Ram</li>|<li> 100 GB Root</li></ul>|Virtual Machine local load balancer|
 
 # Download Openshift Product
@@ -50,26 +50,53 @@ Openshift install requires RPM and access the redhat docker registry (registry.r
 * [ ] 5. Enable NetworkManager
   - $ ansible-playbook -i ansible.os25 playbooks/network-manager.yml 
 
-* [ ] 6. Mount docker disk on /var/lib/docker
+* [ ] 6. Partition and Mount docker disk on /var/lib/docker
   - $ ansible-playbook -i ansible.os25 playbooks/docker-storage-mount.yml
   
+  Here is a step to manually partition disk and mount to the file system.
+  Create <b>partition_disk.sh</b>
+  ```
+      #!/bin/bash
+	if [[ $# -ne 2 ]]; then
+	    echo "Requires a disk name and mounted path name"
+	    echo "$(basename $0) <disk> <path>"
+	    exit 1
+	fi
+	set -e
+	parted ${1} --script mklabel gpt
+	parted ${1} --script mkpart primary '0%' '100%'
+	mkfs.xfs -f -n ftype=1 ${1}1
+	mkdir -p ${2}
+	echo "${1}1       ${2}              xfs     defaults,noatime    1 2" >> /etc/fstab
+	mount ${2}
+	exit 0
+   ```
+   Then run the command for each partition on every nodes.
+ 
+   ```
+   sh partition_disk.sh /dev/<deviceName>	/<fileSystemName>
+
+   example:
+   sh partition_disk.sh /dev/sdb /var/lib/docker
+   ```
+  
 * [ ] 7. Subscribe to RedHat license (non-airgap only )
-  - $ ansible-playbook -i ansible.os25 playbooks/redhat-register-machines.yml 
+  - $ ansible-playbook -i hosts playbooks/redhat-register-machines.yml 
 
 * [ ] 8. Disable all RPM repos
-  - $ ansible-playbook -i ansible.os25 playbooks/disable-redhat-repos.yml 
+  - $ ansible-playbook -i hosts playbooks/disable-redhat-repos.yml 
   
 * [ ] 9. enable OpenShift RPM repos (non-airgap only)
-  - $ ansible-playbook -i ansible.os25 playbooks/enable-ocp-repos.yml
+  - $ ansible-playbook -i hosts playbooks/enable-ocp-repos.yml
 
 * [ ] 10. Copy ose.repo to all nodes (airgap only)
-  - $ ansible-playbook -i ansible.os25 playbooks/yum-ose-repo.yml 
+  - $ ansible-playbook -i hosts playbooks/yum-ose-repo.yml 
 
 * [ ] 11. Install preinstall packages
-  - $ ansible-playbook -i ansible.os25 playbooks/preinstallpackages.yml
+  - $ ansible-playbook -i hosts playbooks/preinstallpackages.yml
 
 * [ ] 12. Reboot all cluster nodes
-  - $ ansible-playbook -i ansible.os25 playbooks/reboot-cluster.yml   
+  - $ ansible-playbook -i hosts playbooks/reboot-cluster.yml   
 
 * [ ] 13. Only on Bastion Host: Install ansible-Openshift
   - $ yum -y install openshift-ansible-3.11.141-1.git.0.a7e91cd.el7
