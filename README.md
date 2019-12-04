@@ -25,13 +25,15 @@
 # Provision Infrastructure
 
 
-| Host | Configuration | Count | Purpose |
-|:------------|:-------------|:------------|:----------|
-| Bastion| <ul><li>4 Core</li><li>8GB Ram</li><li> 100 GB Roo</li><li>500 GB for local repo/registry</li></ul>|1|Virtual Machine for installation||
-| Master nodes| <ul><li>8 Core</li><li>32 GB Ram</li><li> 100 GB Roo</li><li>200 GB for Docker storage </li></ul>|3| Virtual Machine running OpenShift Control plane|
-| Worker nodes| <ul><li>16 Core</li><li>64GB Ram</li><li> 100 GB Roo</li><li>200 GB for Docker storage</li><li>1 TB GB for persistance storage</li></ul>|3| Virtual Machine running Workload|
-| Load Balancer| <ul><li>4 Core</li><li>8GB Ram</li><li> 100 GB Root</li></ul>|1| Virtual Machine local load balancer|
+| Host |Count |Configuration | Storage | Purpose |
+|:------|------|:-------------|:------------|:----------|
+| Bastion| 1 | <ul><li>8 Core</li><li>16 GB Ram</li></ul>|<ul><li> 100 GB Root</li><li>/var/lib/docker 200+ GB to storge docker images </li><li>/repository 500+ GB for local repo/registry</li></ul>|Virtual Machine for installation; This machine will also act as a local RPM Yum repository and Docker registry for airgap environment|
+| Master nodes|1 or 3 |<ul><li>8 Core</li><li>32 GB Ram</li></u>|<ul><li> 100 GB Roo</li><li>/var/lib/docker 200+ GB for Docker storage </li></ul>|Virtual Machine running OpenShift Control plane|
+| Worker nodes|3 or more| <ul><li>16 Core</li><li>64GB Ram</li></u>|<ul><li> 100 GB Roo</li><li>/var/lib/docker 200+ GB for Docker storage</li><li>1 TB GB for persistance storage</li></ul>|Virtual Machine running Workload|
+| Load Balancer|1 option| <ul><li>4 Core</li><li>8GB Ram</li>|<li> 100 GB Root</li></ul>|Virtual Machine local load balancer|
 
+# Download Openshift Product
+Openshift install requires RPM and access the redhat docker registry (registry.redhat.io). In the case of AirGap deployment, both need to be made available local to the environment.
 
 # Prepare Cluster nodes
 * [ ] 1. Password less ssh between Bastion and all nodes
