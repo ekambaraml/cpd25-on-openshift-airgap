@@ -38,19 +38,20 @@ Openshift install requires RPM and access the redhat docker registry (registry.r
 # Prepare Cluster nodes
 Ansible playbooks are created to automate the steps required to prepare the nodes and installing prerequisite packages and configuring the machines. The playbooks are stored in an external git repository for everyone to make use of it.  
 
-* [ ] Bastion Host setup
+### 1. Bastion Host setup
 
 Bastion node is a host in the same network as cluster nodes and have access to cluster nodes. This host will be used for installing OpenShift cluster and hosting the temporary local Yum repository and Docker registry for installation purpose.
 
-### 1. Clone the git repository
+* [ ] 1. Clone the git repository
+
 ```
 	cd /ibm
 	git clone https://github.com/ekambaraml/openshift311-airgap.git
 	cd openshift311-airgap
 ```
 	
+* [ ]  2. Hostfile Creation
 
-### 2. Hostfile Creation
 The playbooks requires hostfile listing machines. Here is an example hosts file format:
 
 * Example: using SSH
@@ -80,6 +81,29 @@ The playbooks requires hostfile listing machines. Here is an example hosts file 
 	[loadbalancer]
 	172.300.104.59 private_ip=10.188.201.11 name=loadbalancer type=proxy ansible_ssh_user=root ansible_ssh_pass=<password>
 ```
+
+* [ ] 3. Update the vars/global.yml with your environment specific values
+```
+	---
+
+	sudo: yes
+	docker_disk: /dev/xvdc
+	docker_storage: /var/lib/docker
+	nfs_disk: /dev/xvde
+	time_server: <your timeserver>
+	yum_repository_server: <yum repository server - Bastion Host>
+
+	#OSE YUM Repository
+	yum_ose_dest: /etc/yum.repos.d/ose.repo
+	yum_ose_src: ../utils/ose.repo"
+
+
+	##RedHat Subscription
+	redhat_username: <username>
+	redhat_password: <password>
+	redhat_pool_ids: <pool-id>
+```
+
 
 ### 3. Setup local Yum repository for OpenShift 3.11 RPMs
   * [ ] Mount the disk to <b> /repository </b>. It requires about 200GB of storage
@@ -297,12 +321,31 @@ Make sure this mount work correctly. After the test, umount the share
     umount /data
 ```
 
+# 7. Preparing Cluster nodes
+Below are the sequences of steps needed to prepare the worker, master and loadbalancer nodes before starting the openshift install. All these commands will be run from bastion Host.
 
-Below are the sequences of steps needed to prepare the nodes before starting the openshift install. All these commands will be run from bastion Host.
 
-* [ ] 1. Password less ssh between Bastion and all nodes
 
-* [ ] 2. Clocksync on all nodes
+* [ ] 1. Password less ssh from Bastion and all nodes
+```
+     ssh-keygen
+     ssh-copy-id <all cluster nodes>
+```
+
+* [ ] 2. Install ansible on Bastion host
+```
+	yum install -y ansible
+```
+        ensure, it is installing the ansible version 2.6.19
+```
+        ansible --version
+```
+* [ ] 3. Install ansible-Openshift on Bastion Host only
+```
+	yum -y install openshift-ansible
+```
+
+* [ ] 4. Clocksync on all nodes
   - $ ansible-playbook -i ansible.os25 playbooks/clocksync.yml
 
 * [ ] 3. Ipv4 forward
@@ -362,8 +405,6 @@ Below are the sequences of steps needed to prepare the nodes before starting the
 * [ ] 12. Reboot all cluster nodes
   - $ ansible-playbook -i hosts playbooks/reboot-cluster.yml   
 
-* [ ] 13. Only on Bastion Host: Install ansible-Openshift
-  - $ yum -y install openshift-ansible-3.11.141-1.git.0.a7e91cd.el7
   
 # Setup NFS Server (persistent storage)
 On a node with NFS disk
