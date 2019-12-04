@@ -1,0 +1,61 @@
+    # GlusterFS storage sample, note to change hostname, load balancer, ansible_ssh_user variables.
+    # define openshift components
+     [OSEv3:children]
+     masters
+     nodes
+     glusterfs
+     etcd
+     lb
+     # define openshift variables
+     [OSEv3:vars]
+     containerized=True
+
+     ansible_ssh_user=<<ssh_user_name>>
+     ansible_become=yes
+     #uninstall var
+     openshift_uninstall_images=False
+     openshift_remove_all=False
+     #cert change var
+     openshift_node_restart_docker_required=False
+     #Gluster and docker registry
+     openshift_storage_glusterfs_heketi_wipe=True
+     openshift_storage_glusterfs_storageclass=True
+     openshift_deployment_type=openshift-enterprise
+     openshift_hosted_registry_storage_kind=glusterfs
+     openshift_hosted_registry_storage_volume_size=100Gi
+     openshift_docker_insecure_registries="registry.ibmcloudpack.com:5000"
+     #Glusterfs images
+     openshift_storage_glusterfs_image=registry.ibmcloudpack.com:5000/rhgs3/rhgs-server-rhel7:v3.11
+     openshift_storage_glusterfs_block_image=registry.ibmcloudpack.com:5000/rhgs3/rhgs-gluster-block-prov-rhel7:v3.11
+     openshift_storage_glusterfs_heketi_image=registry.ibmcloudpack.com:5000/rhgs3/rhgs-volmanager-rhel7:v3.11
+     #Remove all check, no need to do these.
+     openshift_disable_check=memory_availability,disk_availability,docker_storage,docker_storage_driver,docker_image_availability,package_version,package_availability,package_update
+     #The base docker registry hub.
+     oreg_url=registry.ibmcloudpack.com:5000/openshift3/ose-${component}:${version}
+     # setting up username/password
+     openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+     openshift_master_htpasswd_users={ 'ocadmin': '', 'ocuser': '/zKxY2j0WPV/' }
+     #os_firewall_use_firewalld=True
+     openshift_master_cluster_method=native
+     openshift_master_cluster_hostname=<<master_cluster_hostname>>
+     openshift_master_cluster_public_hostname=<<load_balancer_domain_name>>
+     openshift_master_default_subdomain=apps.<<load_balancer_domain_name>>
+     # Install and run cri-o.
+     openshift_use_crio=False
+     openshift_use_crio_only=False
+     # host group for masters
+     [masters]
+     <<cluster-master-name>>-master[1:3] ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
+     # load balancer
+     [lb]
+     <<load-balancer>> ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
+     # host group for etcd
+     [etcd]
+     <<cluster-master-name>>-master[1:3] ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
+     [glusterfs]
+     <<cluster-master-name>>-master[1:3] glusterfs_devices='[ "/dev/sdd"]' ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
+     # host group for nodes
+     [nodes]
+     <<cluster-master-name>>-master[1:3] openshift_node_group_name="node-config-all-in-one" ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
+     <<cluster-master-name>>-worker[1:3] openshift_node_group_name="node-config-compute" ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
+     <<cluster-master-name>>-lb openshift_node_group_name="node-config-infra" ansible_ssh_extra_args='-o StrictHostKeyChecking=no'
