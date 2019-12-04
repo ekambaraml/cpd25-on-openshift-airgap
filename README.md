@@ -403,7 +403,14 @@ These nodes need to be restarted to make SELINUX setting to be enfective,
   - $ ansible-playbook -i hosts playbooks/reboot-cluster.yml   
 
 # 8. Load Balancer setup
+External access to OpenShift cluster are achieved using a load balancer. In high availability scenario, external load balancer server as single entry point to OpenShift cluster. Two different load balancer are used, one for control plane , separate one for application workloads running on OpenShift. In POC like, environment users usually setup a small Virtual machine to act as a loadbalancer.
 
+Please refer RedHat documentation for more details https://access.redhat.com/documentation/en-us/openshift_container_platform/3.11/html/configuring_clusters/install-config-routing-from-edge-lb
+
+
+![alt text][logo]
+
+[logo]: https://github.com/ekambaraml/openshift311-airgap/blob/master/OpenShift-withLB.png "How Load Balancer is used"
 
 # 9. Create OpenShift Inventory file
 
