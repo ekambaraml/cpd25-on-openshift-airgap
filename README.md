@@ -42,7 +42,10 @@
 
 
 # 2. Download Openshift Product
-Openshift install requires RPM and access the redhat docker registry (registry.redhat.io). In the case of AirGap deployment, both need to be made available local to the environment.
+Openshift install requires RPM and access the redhat docker registry (registry.redhat.io). In the case of AirGap deployment, both need to be made available local to the environment. Here is the documented instruction from RedHat on how to obtaining the Software and container images.
+
+https://docs.openshift.com/container-platform/3.11/install/disconnected_install.html#disconnected-required-software-and-components
+
 
 # 3. Bastion Host setup
 Ansible playbooks are created to automate the steps required to prepare the nodes and installing prerequisite packages and configuring the machines. The playbooks are stored in an external git repository for everyone to make use of it.  
