@@ -159,6 +159,42 @@ The playbooks requires hostfile listing machines. Here is an example hosts file 
 ```
     scp /etc/yum.repos.d/ose.repo  <host>:/etc/yum.repos.d/ose.repo
 ```
+
+### 4. Setup local Docker registry server
+This server will host the RedHat OpenShift images from registry.redhat.io for installation purpose in an airgaped environment. We will be using a docker container "regisry:2" for running the registry server. <i>This docker registry image need to be downloaded from a internet facing machine and transfer to Bastion Host</i>.
+* [ ] Downloading docker registry image and test busybox image
+This step need to be done on a internet facing system.
+
+```        
+    docker pull  docker.io/library/registry:2
+    docker pull  docker.io/library/busybox:latest
+    docker save -o registry.tar \
+            docker.io/library/registry:2 \
+            docker.io/library/busybox:latest
+```
+* [ ] Load Registry
+```
+	docker load -i registry2.tar
+```
+
+* [ ] Update /etc/containers/registry.conf, update registry.conf file to use your image registry. 
+```
+	[registries.insecure]
+	registries = ["registry.ibmcloudpack.com:5000"]
+```
+* [ ] Start the local registry
+
+```
+	docker run -d -p 5000:5000 --restart=always --name registry registry:2
+```
+
+* [ ] Testing the registry setup
+```
+    docker images
+    docker tag docker.io/busybox  <<registry.ibmcloudpack.com>>:5000/busybox
+    docker push <<registry.ibmcloudpack.com>>:5000/busybox
+```
+
 Below are the sequences of steps needed to prepare the nodes before starting the openshift install. All these commands will be run from bastion Host.
 
 * [ ] 1. Password less ssh between Bastion and all nodes
