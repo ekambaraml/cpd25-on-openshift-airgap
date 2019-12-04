@@ -14,7 +14,7 @@
 * [ ] 7. Update ansible playbook vars/global.yml
 * [ ] 8. Update ansible.os25
 * [ ] 9. Prepare cluster nodes
-* [ ] 10. NFS Server setup
+* [ ] 10. Load Balancer setup
 * [ ] 11. Deploy OpenShift
       Create inventory file
       Run prerequisites
@@ -387,60 +387,48 @@ Below are the sequences of steps needed to prepare the worker, master and loadba
    sh partition_disk.sh /dev/sdb /var/lib/docker
    ```
   
-* [ ] 7. Subscribe to RedHat license (non-airgap only )
-  - $ ansible-playbook -i hosts playbooks/redhat-register-machines.yml 
 
-* [ ] 8. Disable all RPM repos
+* [ ] 7. Disable all RPM repos
   - $ ansible-playbook -i hosts playbooks/disable-redhat-repos.yml 
-  
-* [ ] 9. enable OpenShift RPM repos (non-airgap only)
-  - $ ansible-playbook -i hosts playbooks/enable-ocp-repos.yml
 
-* [ ] 10. Copy ose.repo to all nodes (airgap only)
+
+* [ ] 8. Copy ose.repo to all nodes
   - $ ansible-playbook -i hosts playbooks/yum-ose-repo.yml 
 
-* [ ] 11. Install preinstall packages
+* [ ] 9. Install preinstall packages
   - $ ansible-playbook -i hosts playbooks/preinstallpackages.yml
 
-* [ ] 12. Reboot all cluster nodes
+* [ ] 10. Reboot all cluster nodes
+These nodes need to be restarted to make SELINUX setting to be enfective, 
   - $ ansible-playbook -i hosts playbooks/reboot-cluster.yml   
 
-  
-# Setup NFS Server (persistent storage)
-On a node with NFS disk
-```$ yum install nfs-utils
-edit /etc/exports
-$ cat /etc/exports
-/data *(rw,sync,no_root_squash)
-$ systemctl restart nfs-server
-$ systemctl enable nfs-server
+# 8. Load Balancer setup
 
-# Firewall setup
-$ firewall-cmd --permanent --add-service=nfs
-$ firewall-cmd --permanent --add-service=mountd
-$ firewall-cmd --permanent --add-service=rpc-bind
-$ firewall-cmd –reload
 
-Testing NFS disk mount on client machine (worker 1)
-$ showmount -e <nfs-server-machine>
-$ mkdir /tmp/x
-$ mount <nfs-server-machine>:/data /tmp/x
+# 9. Create OpenShift Inventory file
 
-unmount the test directory
-$ umount /root/x
+# 10. Deploy OpenShift 3.11
+On Bastion host, run the following commands to deploy openshift 3.11 
+```
+	$ ansible-playbook -i  inventory /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+	$ ansible-playbook -i  inventory /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
 ```
 
-# Create Inventory file
+# 11. Validating successful OpenShift install
 
-# Deploy OpenShift 3.11
-On Bastion host, run the following commands to deploy openshift 3.11 
-- $ ansible-playbook -i  inventory /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
-- $ ansible-playbook -i  inventory /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+* [ ] 1. Test the cluster and pods are up and Running
+```
+    oc get nodes
+    oc get pods –all-namespaces
 
-# Accessing OpenShift console
-$ oc get routes -n openshift-console | grep console
-console   console.apps.examples.com             console    https     reencrypt/Redirect   None
+```
+* [ ] Find URL of the openshift admin console
+```
+	oc get routes -n openshift-console | grep console
+	console   console.apps.examples.com             console    https     reencrypt/Redirect   None
+```
+* [ ] Open the url https://console.apps.examples.com in Firefox or chrome browser
+Default admin user/password is setup to "ocadmin" and "ocadmin".   Change the password after you validate the cluster is fully ready.
 
-Access the url https://console.apps.examples. com
 
 
