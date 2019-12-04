@@ -1,4 +1,6 @@
-# Deploying OpenShift 3.11 on AirGap environment
+# Deploying OpenShift 3.11 on AirGap / Disconnected environment
+
+<b>(Reference:  https://docs.openshift.com/container-platform/3.11/install/disconnected_install.html )</b>
 
 ![alt text][logo]
 
@@ -7,38 +9,43 @@
 # Steps Required to deploy
 * [ ] 1. Provision Infrastructure
 * [ ] 2. Download the OpenShift RPMs and Docker images
-* [ ] 3. Setup External DNS and include all nodes
-* [ ] 4. Setup DNS wild card entry
-* [ ] 5. Setup YUM RPM Repository for OpenShift 3.11
-* [ ] 6. Setup Docker Registry with OpenShift 3.11
-* [ ] 7. Update ansible playbook vars/global.yml
-* [ ] 8. Update ansible.os25
-* [ ] 9. Prepare cluster nodes
-* [ ] 10. Load Balancer setup
-* [ ] 11. Deploy OpenShift
-      Create inventory file
-      Run prerequisites
-      Run deploy_cluster
-* [ ] 12. Access the Cluster URL
+* [ ] 3. Setup Bastion Host
+* [ ] 4. Setup local YUM RPM Repository for OpenShift 3.11
+* [ ] 5. Setup local Docker Registry
+* [ ] 6. Load OpenShift images
+* [ ] 7. NFS server setuo
+* [ ] 8. Prepare cluster nodes
+* [ ] 9. Load Balancer setup
+* [ ] 10. Create OpenShift inventory file
+* [ ] 11. Install OpenShift 
+* [ ] 12. Validate deployment
 
 
-# Provision Infrastructure
+# 1. Provision Infrastructure
 
 
 | Host |Count |Configuration | Storage | Purpose |
 |:------|------|:-------------|:------------|:----------|
-| Bastion| 1 | <ul><li>8 Core</li><li>16 GB Ram</li></ul>|<ul><li> /ibm 100 GB install</li><li>/var/lib/docker 200+ GB to storge docker images </li><li>/repository 500+ GB for local repo/registry</li></ul>|Virtual Machine for installation; This machine will also act as a local RPM Yum repository and Docker registry for airgap environment|
-| Master nodes|1 or 3 |<ul><li>8 Core</li><li>32 GB Ram</li></u>|<ul><li> 100 GB Root</li><li>/var/lib/docker 200+ GB for Docker storage </li></ul>|Virtual Machine running OpenShift Control plane|
-| Worker nodes|3 or more| <ul><li>16 Core</li><li>64GB Ram</li></u>|<ul><li> 100 GB Root</li><li>/var/lib/docker 200+ GB for Docker storage</li><li>1 TB GB for persistance storage</li></ul>|Virtual Machine running Workload|
-| Load Balancer|1 option| <ul><li>4 Core</li><li>8GB Ram</li>|<li> 100 GB Root</li></ul>|Virtual Machine local load balancer|
+| Bastion| 1 | <ul><li>8 Core</li><li>16 GB Ram</li><li>RHEL 7.5+</li></ul>|<ul><li> /ibm 100 GB install</li><li>/var/lib/docker 200+ GB to storge docker images </li><li>/repository 500+ GB for local repo/registry</li></ul>|Virtual Machine for installation; This machine will also act as a local RPM Yum repository and Docker registry for airgap environment|
+| Master nodes|1 or 3 |<ul><li>8 Core</li><li>32 GB Ram</li><li>RHEL 7.5+</li></u>|<ul><li> 100 GB Root</li><li>/var/lib/docker 200+ GB for Docker storage </li></ul>|Virtual Machine running OpenShift Control plane|
+| Worker nodes|3 or more| <ul><li>16 Core</li><li>64GB Ram</li><li>RHEL 7.5+</li></u>|<ul><li> 100 GB Root</li><li>/var/lib/docker 200+ GB for Docker storage</li><li>1 TB GB for persistance storage</li></ul>|Virtual Machine running Workload|
+| Load Balancer|1 option| <ul><li>4 Core</li><li>8GB Ram</li><li>RHEL 7.5+</li></ul>|<ul><li> 100 GB Root</li></ul>|Virtual Machine local load balancer|
 
-# Download Openshift Product
+* [ ] 2. Setup External DNS 
+       
+       https://docs.openshift.com/container-platform/3.11/install/prerequisites.html#prereq-dns
+       
+* [ ] 3. Setup DNS wild card 
+       https://docs.openshift.com/container-platform/3.11/install/prerequisites.html#wildcard-dns-prereq
+       
+* [ ] 4. Provision LoadBalancer (external if any)
+
+
+# 2. Download Openshift Product
 Openshift install requires RPM and access the redhat docker registry (registry.redhat.io). In the case of AirGap deployment, both need to be made available local to the environment.
 
-# Prepare Cluster nodes
+# 3. Bastion Host setup
 Ansible playbooks are created to automate the steps required to prepare the nodes and installing prerequisite packages and configuring the machines. The playbooks are stored in an external git repository for everyone to make use of it.  
-
-### 1. Bastion Host setup
 
 Bastion node is a host in the same network as cluster nodes and have access to cluster nodes. This host will be used for installing OpenShift cluster and hosting the temporary local Yum repository and Docker registry for installation purpose.
 
@@ -105,7 +112,7 @@ The playbooks requires hostfile listing machines. Here is an example hosts file 
 ```
 
 
-### 3. Setup local Yum repository for OpenShift 3.11 RPMs
+# 4. Setup local Yum repository for OpenShift 3.11 RPMs
   * [ ] Mount the disk to <b> /repository </b>. It requires about 200GB of storage
 ```
      $ cd /repository
@@ -184,7 +191,7 @@ The playbooks requires hostfile listing machines. Here is an example hosts file 
     scp /etc/yum.repos.d/ose.repo  <host>:/etc/yum.repos.d/ose.repo
 ```
 
-### 4. Setup local Docker registry server
+# 5. Setup local Docker registry server
 This server will host the RedHat OpenShift images from registry.redhat.io for installation purpose in an airgaped environment. We will be using a docker container "regisry:2" for running the registry server. <i>This docker registry image need to be downloaded from a internet facing machine and transfer to Bastion Host</i>.
 * [ ] Downloading docker registry image and test busybox image
 This step need to be done on a internet facing system.
@@ -219,7 +226,7 @@ This step need to be done on a internet facing system.
     docker push <<registry.ibmcloudpack.com>>:5000/busybox
 ```
 
-### 5. Load OpenShift 3.11 images into local docker registry
+# 6. Load OpenShift 3.11 images into local docker registry
 * [ ] Load openshift 3.11 images
 ```
     cd /ibm
@@ -258,7 +265,7 @@ Create retag-v154.sh
 ```
 and Run the retag-v154.sh
 
-### 6. Setup NFS server for persistent storage for Cloud Pak for Data.
+# 7. Setup NFS server for persistent storage for Cloud Pak for Data.
 NFS server need to be setup in a machine with 1TB storage disk. In this example the work1 - Worker 3 are provisioned with additional 1TB disks. We are going to use <b>Work1</b> for running the local NFS server.
 
 * [ ] Install nfs server
@@ -321,7 +328,7 @@ Make sure this mount work correctly. After the test, umount the share
     umount /data
 ```
 
-# 7. Preparing Cluster nodes
+# 8. Preparing Cluster nodes
 Below are the sequences of steps needed to prepare the worker, master and loadbalancer nodes before starting the openshift install. All these commands will be run from bastion Host.
 
 
@@ -402,7 +409,7 @@ Below are the sequences of steps needed to prepare the worker, master and loadba
 These nodes need to be restarted to make SELINUX setting to be enfective, 
   - $ ansible-playbook -i hosts playbooks/reboot-cluster.yml   
 
-# 8. Load Balancer setup
+# 9. Load Balancer setup
 External access to OpenShift cluster are achieved using a load balancer. In high availability scenario, external load balancer server as single entry point to OpenShift cluster. Two different load balancer are used, one for control plane , separate one for application workloads running on OpenShift. In POC like, environment users usually setup a small Virtual machine to act as a loadbalancer.
 
 Please refer RedHat documentation for more details https://access.redhat.com/documentation/en-us/openshift_container_platform/3.11/html/configuring_clusters/install-config-routing-from-edge-lb
@@ -412,16 +419,20 @@ Please refer RedHat documentation for more details https://access.redhat.com/doc
 
 [logo]: https://github.com/ekambaraml/openshift311-airgap/blob/master/OpenShift-withLB.png "How Load Balancer is used"
 
-# 9. Create OpenShift Inventory file
+# 10. Create OpenShift Inventory file
+Inventory file is created based your cluster configuration. Sample inventory files are attached in this repo. for reference.
 
-# 10. Deploy OpenShift 3.11
+NFS as a Storage: https://github.com/ekambaraml/openshift311-airgap/blob/master/inventory.nfs
+GlusterFS as a storage: https://github.com/ekambaraml/openshift311-airgap/blob/master/inventory.glusterfs
+
+# 11. Deploy OpenShift 3.11
 On Bastion host, run the following commands to deploy openshift 3.11 
 ```
 	$ ansible-playbook -i  inventory /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
 	$ ansible-playbook -i  inventory /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
 ```
 
-# 11. Validating successful OpenShift install
+# 12. Validating successful OpenShift install
 
 * [ ] 1. Test the cluster and pods are up and Running
 ```
