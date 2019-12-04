@@ -415,9 +415,9 @@ External access to OpenShift cluster are achieved using a load balancer. In high
 Please refer RedHat documentation for more details https://access.redhat.com/documentation/en-us/openshift_container_platform/3.11/html/configuring_clusters/install-config-routing-from-edge-lb
 
 
-![alt text][logo]
+![alt text][logo2]
 
-[logo]: https://github.com/ekambaraml/openshift311-airgap/blob/master/OpenShift-withLB.png "How Load Balancer is used"
+[logo2]: https://github.com/ekambaraml/openshift311-airgap/blob/master/OpenShift-withLB.png "How Load Balancer is used"
 
 # 10. Create OpenShift Inventory file
 Inventory file is created based your cluster configuration. Sample inventory files are attached in this repo. for reference.
