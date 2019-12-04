@@ -1,0 +1,82 @@
+# NFS storage sample:
+    # define openshift components, note to change hostname, load balancer name, NFS server host variables.
+     [OSEv3:children]
+     masters
+     nodes
+     nfs
+     etcd
+     #lb
+     #master0
+
+     # define openshift variables
+     [OSEv3:vars]
+     containerized=true
+     openshift_deployment_type=openshift-enterprise
+     openshift_hosted_registry_storage_volume_size=100Gi
+     openshift_docker_insecure_registries="<<registry.ibmcloudpack.com>>"
+     openshift_disable_check=docker_image_availability
+
+     #openshift_node_groups=[ {"name": "all-in-one", "labels": ["node-role.kubernetes.io/master=true", "node-role.kubernetes.io/infra=true", "node-role.kubernetes.io/compute=true" ]}, {"name": "node-config-master", "labels": ["node-role.kubernetes.io/master=true"]}, {"name": "node-config-infra", "labels": ["node-role.kubernetes.io/infra=true"]}, {"name": "node-config-compute", "labels": ["node-role.kubernetes.io/compute=true"]}]
+
+     openshift_node_groups=[{'name': 'node-config-master', 'labels': ['node-role.kubernetes.io/master=true']}, {'name': 'node-config-infra', 'labels': ['node-role.kubernetes.io/infra=true']}, {'name': 'node-config-compute', 'labels': ['node-role.kubernetes.io/compute=true']}, {'name': 'node-config-master-infra', 'labels': ['node-role.kubernetes.io/master=true', 'node-role.kubernetes.io/infra=true']}, {'name': 'node-config-all-in-one', 'labels': ['node-role.kubernetes.io/master=true', 'node-role.kubernetes.io/infra=true', 'node-role.kubernetes.io/compute=true']}]
+
+
+
+     oreg_url=<<registry.ibmcloudpack.com>>/openshift3/ose-${component}:${version}
+     openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+     openshift_master_htpasswd_users={'ocadmin': '$apr1$CdyzN7vS$wM6gchgqURLe1A7gQRbIi0'}
+     ansible_ssh_user=<<ssh-user-name>>
+     ansible_become=yes
+     os_firewall_use_firewalld=True
+     openshift_master_cluster_method=native
+     openshift_master_cluster_hostname=<<master-cluster-hostname>>
+     openshift_master_cluster_public_hostname=<<master-cluster-hostname>>
+     openshift_master_default_subdomain=<<master-cluster-hostname>>
+     openshift_disable_check=memory_availability
+
+     # CRI-O
+     openshift_use_crio=False
+     openshift_use_crio_only=False
+
+     # NFS Host Group
+     # An NFS volume will be created with path "nfs_directory/volume_name"
+     # on the host within the [nfs] host group.  For example, the volume
+     # path using these options would be "/exports/registry".  "exports" is
+     # is the name of the export served by the nfs server.  "registry" is
+     # the name of a directory inside of "/exports".
+
+     openshift_hosted_registry_storage_kind=nfs
+     openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+     # nfs_directory must conform to DNS-1123 subdomain must consist of lower case
+     # alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character
+     openshift_hosted_registry_storage_nfs_directory=/data
+     openshift_hosted_registry_storage_nfs_options='*(rw,root_squash,anonuid=1000,anongid=2000)'
+     openshift_hosted_registry_storage_volume_name=registry
+     openshift_hosted_registry_storage_volume_size=200Gi
+
+     # host group for masters
+     [masters]
+     <<master1-hostname>>
+     <<master2-hostname>>
+     <<master3-hostname>>
+
+
+     # host group for etcd
+     [etcd]
+     <<etcd1-hostname>>
+     <<etcd2-hostname>>
+     <<etcd3-hostname>>
+
+     # nfs server
+     [nfs]
+     <<nfs-servewr>>
+
+
+     # host group for nodes
+     [nodes]
+     <<master1-hostname>> openshift_node_group_name="node-config-master-infra"
+     <<master2-hostname>> openshift_node_group_name="node-config-master-infra"
+     <<master3-hostname>> openshift_node_group_name="node-config-master-infra"
+     <<worker1-hostname>> openshift_node_group_name="node-config-compute"
+     <<worker2-hostname>> openshift_node_group_name="node-config-compute"
+     <<worker3-hostname>> openshift_node_group_name="node-config-compute"
