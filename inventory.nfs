@@ -33,6 +33,9 @@
      openshift_master_cluster_public_hostname=<<master-cluster-hostname>>
      openshift_master_default_subdomain=<<master-cluster-hostname>>
      openshift_disable_check=memory_availability
+     # It is needed where no LB and master node is running the infra router too.
+     openshift_master_api_port=8443
+     openshift_master_console_port=8443
 
      # CRI-O
      openshift_use_crio=False
