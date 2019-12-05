@@ -40,6 +40,11 @@
      openshift_master_cluster_hostname=<<master_cluster_hostname>>
      openshift_master_cluster_public_hostname=<<load_balancer_domain_name>>
      openshift_master_default_subdomain=apps.<<load_balancer_domain_name>>
+     
+     # It is needed where no LB and master node is running the infra router too.
+     openshift_master_api_port=8443
+     openshift_master_console_port=8443
+
      # Install and run cri-o.
      openshift_use_crio=False
      openshift_use_crio_only=False
