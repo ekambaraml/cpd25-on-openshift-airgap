@@ -47,4 +47,30 @@ Run the following command on Master1 node of the cluster. Master1 node usually i
  
  ## 4. Download the CP4D Assemblies
  
+ ### Apply permission
+ ```
+ cpd-linux  adm -a wsl -v 2.1.0 -n cpd --apply --load-from=/data/wsl
+ ```
+ 
+ ### Download images
+ ```
+ cpd-linux preloadImages --action push --load-from=/data/wsl/  --transfer-image-to=docker-registry-default.apps.os311-rel25-master1.demo.ibmcloudpack.com/cpd  --target-registry-username=$(oc whoami) --target-registry-password=$(oc whoami -t) -a wsl -v 2.1.0
+ ```
+ 
  ## 5. Install the CP4D Assemblies
+ 
+ ### Apply permissions
+ ```
+  cpd-linux preloadImages -a wsl --action download -r repo.yml --download-path=/data/wsl
+ ```
+ ### Preload the image 
+  ```
+  cpd-linux preloadImages --action push --load-from=/data/wsl/  --transfer-image-to=docker-registry-default.apps.os311-rel25-master1.demo.ibmcloudpack.com/cpd  --target-registry-username=$(oc whoami) --target-registry-password=$(oc whoami -t) -a wsl -v 2.1.0
+  ```
+  
+ ### Installing the WSL
+ 
+ ```
+ cpd-linux -a wsl -n cpd -c  managed-nfs-storage --load-from=/data/wsl  --cluster-pull-prefix=docker-registry.default.svc:5000/cpd --cluster-pull-username=$(oc whoami) --cluster-pull-password=$(oc whoami -t) -v 2.1.0
+ ```
+ 
