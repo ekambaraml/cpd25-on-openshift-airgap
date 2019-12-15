@@ -28,6 +28,21 @@ Run the following command on Master1 node of the cluster. Master1 node usually i
   4. docker login -u $(oc whoami)  -p $(oc whoami -t)  docker-registry-default.<apps.example.com>
   ```
  
+ ## 3. Setup NFS client provisioner
+ 
+       1. oc project default
+       2. cd nfs-client; oc create -f deploy/rbac.yaml
+       3. oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:default:nfs-client-provisioner
+       4. oc create -f deploy/class.yaml
+       5. oc create -f deploy/deployment.yaml
+       6. oc get pods
+       7. oc create -f deploy/test-claim.yaml
+       
+ ## 4. Setup Portworx
+ 
+
+
+ 
  ## 3. Download the cpd-linux and repo.yaml files
  
  ## 4. Download the CP4D Assemblies
