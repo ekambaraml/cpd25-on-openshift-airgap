@@ -20,7 +20,7 @@ Run the following command on Master1 node of the cluster. Master1 node usually i
    
   2.  scp registry.crt  <Client Hostname>:/etc/rhsm/ca/
   
-  3. If the directory is not exist, create it, Then run the link
+  3. If the directory  "docker-registry-default.<apps.example.com>" is not exist, create it, Then run the link
   
     # cd /etc/docker/certs.d/docker-registry-default.<apps.example.com/>
     # ln -s /etc/rhsm/ca/registry.crt redhat-ca.crt
