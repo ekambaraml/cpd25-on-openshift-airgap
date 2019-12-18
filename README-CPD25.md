@@ -1,5 +1,32 @@
 # Deploying Cloud Pak for Data on AirGap environment
 
+## 0. Downloadables
+
+* [ ] 1. Installer
+```
+      cpd-linux.  - Cloud Pak for Data installer
+      repo.yaml  - YAML with container entitlement key (customers should get the entitle key from http://myibm.ibm.com)
+```
+      These two files are downloaded from the passport advantage site
+
+* [ ] 2. Cloud Pak for Data Assemblies Download
+```   
+      Cloud Pak for Data platform(lite)
+      Watson Studio Local(wsl)
+      Watson Machine Learning
+      Watson Knowledge Catalog
+      SPSS modeler
+      Decision Optimization
+```
+
+* [ ] 3. Extra support downloads
+
+```
+      Portworx
+      NFS provisioner
+      Registry2 for Airgap)
+```
+
 
 ## 1. User with cluster-admin role
 
