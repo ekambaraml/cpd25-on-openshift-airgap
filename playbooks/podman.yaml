@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: yes
+ 
+  tasks:
+  - name: Install openshift pre packages
+    yum:
+      name: "{{ packages }}"
+    vars:
+      packages:
+      - podman
