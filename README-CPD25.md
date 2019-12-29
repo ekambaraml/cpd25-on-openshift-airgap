@@ -95,6 +95,9 @@ Run the following command on Master1 node of the cluster. Master1 node usually i
   cpd-linux preloadImages --action push --load-from=/data/wsl/  --transfer-image-to=docker-registry-default.apps.os311-rel25-master1.demo.ibmcloudpack.com/cpd  --target-registry-username=$(oc whoami) --target-registry-password=$(oc whoami -t) -a wsl -v 2.1.0
   ```
   
+ ### If PORTWORX storage class is used, please ensure to increase the storage to 10GB at least for cpd-install-operator-pvc
+ $ oc edit pvc cpd-install-operator-pvc
+ 
  ### Installing the WSL
  
  ```
