@@ -19,6 +19,7 @@
       - sos
       - psacct
       - nfs-utils
+      - podman
 
   - name: upgrade all packages
     yum:
