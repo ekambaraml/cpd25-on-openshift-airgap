@@ -104,3 +104,34 @@ Run the following command on Master1 node of the cluster. Master1 node usually i
  cpd-linux -a wsl -n cpd -c  managed-nfs-storage --load-from=/data/wsl  --cluster-pull-prefix=docker-registry.default.svc:5000/cpd --cluster-pull-username=$(oc whoami) --cluster-pull-password=$(oc whoami -t) -v 2.1.0
  ```
  
+<hr>
+# Installation using repo.yaml and directly download and install
+
+[ ] download cpd-linux, repo.yaml
+
+[ ] expose external routes to docker registry
+
+
+1. Login to cluster
+   
+oc login -u ocadmin -p ocadmin <url>
+
+2. Find the ocadmin token, which is required during the install
+
+oc whoami -t
+
+3. Login to docker registry
+
+docker login -u ocadmin -p $(oc whoami -t) <registry url>
+      
+4. Now you are ready to install the Cloud Pak for Data
+
+a. Generate and apply SA secrets
+
+./cpd-linux  adm --repo repo.yaml --assembly lite --namespace <namespace>
+      
+b. Install the Lite
+
+./cpd-linux  --repo repo.yaml --assembly lite --namespace <namespace>  --storageclass managed-nfs-storage --transfer-image-to docker-registry-default.apps.kcanalytica-dev5-bastion.fyre.ibm.com/<namespace> --cluster-pull-prefix docker-registry.default.svc:5000/<namespace> --ask-push-registry-credentials
+      
+When prompted, enter the userid and tocken to start the installation
