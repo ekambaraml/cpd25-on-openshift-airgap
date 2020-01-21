@@ -57,6 +57,9 @@ Run the following command on Master1 node of the cluster. Master1 node usually i
  
  ## 3. Setup NFS client provisioner
  
+NFS client provisioner is an openSource image need to be downloaded from internet facing machine.  This is required for Cloud Pak for Data.  (https://medium.com/faun/openshift-dynamic-nfs-persistent-volume-using-nfs-client-provisioner-fcbb8c9344e )
+
+ 
        1. oc project default
        2. cd nfs-client; oc create -f deploy/rbac.yaml
        3. oc adm policy add-scc-to-user hostmount-anyuid system:serviceaccount:default:nfs-client-provisioner
