@@ -16,10 +16,10 @@
     shell: echo "NM_CONTROLLED=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1
 
   - name: PEERDNS0
-    shell: echo "PEERDNS=no" >> /etc/sysconfig/network-scripts/ifcfg-eth0
+    shell: echo "PEERDNS=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0
 
   - name: PEERDNS1
-    shell: echo "PEERDNS=no" >> /etc/sysconfig/network-scripts/ifcfg-eth1
+    shell: echo "PEERDNS=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1
 
   - name: Start Network Manager
     shell: systemctl stop NetworkManager
