@@ -1,0 +1,59 @@
+# define openshift components
+[OSEv3:children]
+masters
+nodes
+#nfs
+etcd
+lb
+new_nodes
+# define openshift variables
+[OSEv3:vars]
+containerized=true
+openshift_deployment_type=openshift-enterprise
+openshift_docker_insecure_registries="172.30.0.0/16"
+#openshift_node_groups=[ {"name": "node-config-all-in-one", "labels": ["node-role.kubernetes.io/master=true", "node-role.kubernetes.io/infra=true", "node-role.kubernetes.io/compute=true" ]}, {"name": "node-config-master", "labels": ["node-role.kubernetes.io/master=true"]}, {"name": "node-config-infra", "labels": ["node-role.kubernetes.io/infra=true"]}, {"name": "node-config-compute", "labels": ["node-role.kubernetes.io/compute=true"]}]
+oreg_url=registry.access.redhat.com/openshift3/ose-${component}:${version}
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+openshift_master_htpasswd_users={'ocadmin': '$apr1$CdyzN7vS$wM6gchgqURLe1A7gQRbIi0'}
+ansible_ssh_user=root
+os_firewall_use_firewalld=True
+openshift_master_cluster_method=native
+osm_cluster_network_cidr=172.16.0.0/16
+openshift_master_cluster_hostname=cpd-demo.ibmcloudpack.com
+openshift_master_cluster_public_hostname=cpd-demo.ibmcloudpack.com
+openshift_master_default_subdomain=apps.cpd-demo.ibmcloudpack.com
+openshift_disable_check=memory_availability,disk_availability,docker_storage,docker_storage_driver,docker_image_availability,package_version,package_availability,package_update
+
+# CRI-O
+openshift_use_crio=true
+openshift_use_crio_only=true
+# NFS Host Group
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_host=<fsf-sjc0401a-fz.ibmcloudpack.com>
+openshift_hosted_registry_storage_nfs_directory=/IBM02SEV291130_491/data01
+#openshift_hosted_registry_storage_nfs_options='*(rw,no_root_squash,anonuid=1000,anongid=2000)'
+openshift_hosted_registry_storage_volume_name=registry
+openshift_hosted_registry_storage_volume_size=200Gi
+
+#openshift_metrics_install_metrics=true
+
+[masters]
+cpd-master-[00:02].demo.ibmcloudpack.com
+# load balancer
+[lb]
+cpd-demo.ibmcloudpack.com
+# host group for etcd
+[etcd]
+cpd-master-[00:02].demo.ibmcloudpack.com
+#[nfs]
+#fsf-sjc0401a-fz.ibmcloudpack.com
+
+# host group for nodes
+[nodes]
+cpd-master-[00:02].demo.ibmcloudpack.com openshift_node_group_name="node-config-master-infra-crio"
+cpd-worker-[00:04].demo.ibmcloudpack.com openshift_node_group_name="node-config-compute-crio"
+cpd-demo.ibmcloudpack.com openshift_node_group_name="node-config-infra-crio"
+
+[new_nodes]
+cpd-worker-05.demo.ibmcloudpack.com openshift_node_group_name="node-config-compute-crio"
